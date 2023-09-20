@@ -40,7 +40,7 @@ class ProductRepository implements RepositoryInterface
         
         $images = $this->uploadMultipleImages($params , $product);
         $product->images()->createMany($images);
-         return $product;
+        return $product;
 
         /* return $this->product->create($params); */
         // $product = $this->product->create($params);
