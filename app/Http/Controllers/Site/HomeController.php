@@ -2,21 +2,16 @@
 
 namespace App\Http\Controllers\Site;
 
-use App\Models\User;
-use App\Models\Product;
-// use Darryldecode\Cart\Cart;
-// use Darryldecode\Cart\CartCondition;
-// use Darryldecode\Cart\CartCollection;
-// use Darryldecode\Cart\Session\SessionInterface;
-// use Darryldecode\Cart\Cart::session;
-// use Cart;
-// use Darryldecode\Cart\Cart;
-// use Darryldecode\Cart\Cart;
-// use Cart;
-use Darryldecode\Cart\Cart;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-// use Darryldecode\Cart\CartCondition;
+use App\Models\Product;
+use App\Models\User;
+// use Darryldecode\Cart\Cart;
+use Cart;
+use Darryldecode\Cart\Cart as CartCart;
+use Darryldecode\Cart\CartCollection;
+use Darryldecode\Cart\CartCondition;
+use Illuminate\Http\Request;
+
 use illuminate\Support\Facades\Auth;
 // use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -44,7 +39,7 @@ class HomeController extends Controller
             'type' => 'tax',
             'target' => 'subtotal', // this condition will be applied to cart's subtotal when getSubTotal() is called.
             'value' => '12.5%',
-            'order' => 2
+            'order' => 2,
         ));
 
         /* // Instantiate the CartCondition class with the required dependency (your pricing or discount logic)
@@ -59,6 +54,14 @@ class HomeController extends Controller
             'your-user-identifier'   // Unique identifier for the current user
         ); */
 
+        
+        $coupon101 = new CartCondition(array(
+            'name' => 'COUPON 101',
+            'type' => 'coupon',
+            'value' => '-50%',
+        ));
+
+
         $add_to_cart = [];
         // dd($products);
         foreach ($products as $key => $product) {
@@ -68,7 +71,7 @@ class HomeController extends Controller
                 'price' => $product->price,
                 'quantity' => $key + 1, //4,
                 'attributes' => array(),
-                'conditions' => $condition,
+                'conditions' => [$condition, $coupon101],
                 'associatedModel' => $product,
             ];
             /* Cart::session($user->id)->add([
@@ -95,8 +98,8 @@ class HomeController extends Controller
        
         \Cart::session($userId)->update($products[0]->id, array(
             'name' => 'New Item Name', // new item name
-            'price' => 98.67, // new item price, price can also be a string format like so: '98.67'
-            'quantity' => 9, // new item quantity
+            'price' => 20, // new item price, price can also be a string format like so: '98.67'
+            'quantity' => 10, // new item quantity
         ));
         $total = \Cart::session($user->id)->getTotal();
         if (!\Cart::session($user->id)->isEmpty()) {
@@ -105,7 +108,7 @@ class HomeController extends Controller
         $cart = \Cart::session($userId)->getContent();
         $cartTotalQuantity = \Cart::session($userId)->getTotalQuantity();
 
-        $cart = \Cart::session($userId)->getContent();
+        // $cart = \Cart::session($userId)->getContent();
         foreach ($cart as $key => $value) {
             // echo $value['name']." : ".$value['price']." : ".$value['quantity']."<br>";
             echo $value->getPriceSum();
@@ -125,7 +128,7 @@ class HomeController extends Controller
 
 
         $sub = \Cart::session($userId)->getSubTotal();
-        dd($cart, $total, $cartTotalQuantity, $sub);
+        // dd($cart, $total, $cartTotalQuantity, $sub);
 
         // Cart::session($user->id)->add($add_to_cart);
 
@@ -134,7 +137,7 @@ class HomeController extends Controller
         // $total = Cart::session($user->id)->getTotal();
         // $cartTotalQuantity = Cart::session($userId)->getTotalQuantity();
         $items = \Cart::session($userId)->getContent()->toArray();
-        dd($add_to_cart, $total, $cartTotalQuantity, $items);
+        // dd($add_to_cart, $total, $cartTotalQuantity, $items);
 
         return view('site.index', compact('products'));
     }
